@@ -1,0 +1,60 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: VP
+      id: vp
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: VP
+        setup-command: chmod +x .github/classroom/scripts/*.sh
+        command: ".github/classroom/scripts/VP.sh"
+        timeout: 10
+        max-score: 25
+    - name: RPN
+      id: rpn
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: RPN
+        setup-command: chmod +x .github/classroom/scripts/*.sh
+        command: ".github/classroom/scripts/RPNsh"
+        timeout: 10
+        max-score: 25
+    - name: Q Sim
+      id: q-sim
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Q Sim
+        setup-command: chmod +x .github/classroom/scripts/*.sh
+        command: ".github/classroom/scripts/QSim.sh"
+        timeout: 10
+        max-score: 25
+    - name: NGE
+      id: nge
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: NGE
+        setup-command: chmod +x .github/classroom/scripts/*.sh
+        command: ".github/classroom/scripts/NGE.sh"
+        timeout: 10
+        max-score: 25
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        VP_RESULTS: "${{steps.vp.outputs.result}}"
+        RPN_RESULTS: "${{steps.rpn.outputs.result}}"
+        Q-SIM_RESULTS: "${{steps.q-sim.outputs.result}}"
+        NGE_RESULTS: "${{steps.nge.outputs.result}}"
+      with:
+        runners: vp,rpn,q-sim,nge
